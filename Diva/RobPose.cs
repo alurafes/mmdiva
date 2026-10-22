@@ -31,6 +31,26 @@ public sealed class RobPose
 
     public Matrix4x4 InheritMatrix(RobSkeleton.RobBlock b) => b.HasParent ? Matrices[b.Parent] : Matrix4x4.Identity;
     public static Matrix4x4 RotZyx(Vector3 r) => Matrix4x4.CreateRotationX(r.X) * Matrix4x4.CreateRotationY(r.Y) * Matrix4x4.CreateRotationZ(r.Z);
+    public static Vector3 GetRotZyx(in Matrix4x4 matrix)
+    {
+        Vector3 r;
+        if (-matrix.M13 >= 1.0f) r.Y = MathF.PI / 2;
+        else if (-matrix.M13 <= -1.0f) r.Y = -MathF.PI / 2;
+        else r.Y = MathF.Asin(-matrix.M13);
+
+        if (MathF.Abs(matrix.M13) < 0.999999f)
+        {
+            r.X = MathF.Atan2(matrix.M23, matrix.M33);
+            r.Z = MathF.Atan2(matrix.M12, matrix.M11);
+        }
+        else
+        {
+            r.X = 0.0f;
+            r.Z = MathF.Atan2(matrix.M32, matrix.M22);
+            if (matrix.M13 > 0.0f) r.Z = -r.Z;
+        }
+        return r;
+    }
     public static Vector3 InverseTransform(in Matrix4x4 matrix, Vector3 position)
     {
         Matrix4x4.Invert(matrix, out var inverse);

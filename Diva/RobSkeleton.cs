@@ -30,6 +30,11 @@ public sealed class RobSkeleton
     public float HeelHeight { get; private set; }
     public (int block, int sub)[] NodeOwner { get; private set; } = Array.Empty<(int block, int sub)>();
 
+    private readonly Dictionary<string, int> blockByName = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, int> motionBoneByName = new(StringComparer.OrdinalIgnoreCase);
+    public RobBlock BlockByName(string name) => blockByName.TryGetValue(name, out int i) ? Blocks[i] : null;
+    public int MotionBoneIndex(string name) => motionBoneByName.TryGetValue(name, out int i) ? i : -1;
+
     private Skeleton LoadSkeleton(DivaFiles diva)
     {
         var boneDataPath = diva.ResolveFile("rom/bone_data.bin");
@@ -89,10 +94,12 @@ public sealed class RobSkeleton
             for (int n = 0; n < block.NodeCount; n++) owners.Add((i, n));
             node += block.NodeCount;
             Blocks.Add(block);
+            blockByName[block.Name] = i;
         }
 
         MatrixCount = matrix;
         NodeOwner = owners.ToArray();
+        for (int i = 0; i < MotionBoneNames.Count; i++) motionBoneByName[MotionBoneNames[i]] = i;
     }
 
     public RobSkeleton(DivaFiles diva)

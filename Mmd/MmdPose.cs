@@ -52,6 +52,7 @@ public sealed class MmdPose
     public Vector3 GlobalPosition(int bone) => nodes[bone].GlobalTranslation;
     public Quaternion GlobalRotation(int bone) => nodes[bone].GlobalRotation;
     public Vector3 RestPosition(int bone) => nodes[bone].Bone.Position;
+    public int Index(string name) => Model.BoneIndexByName.TryGetValue(name, out int i) ? i : -1;
 
     private void SetParentsAndOffsets()
     {
@@ -113,14 +114,14 @@ public sealed class MmdPose
     {
         foreach (var node in nodes)
         {
-            (node.AnimationTranslation, node.AnimationRotation) = motion.SampleBone(node.Bone.BoneName, frame);
+            (node.AnimationTranslation, node.AnimationRotation) = motion != null ? motion.SampleBone(node.Bone.BoneName, frame) : (Vector3.Zero, Quaternion.Identity);
             node.IkRotation = Quaternion.Identity;
             node.AppendTranslation = Vector3.Zero;
             node.AppendRotation = Quaternion.Identity;
         }
         foreach (var solver in solvers.Values)
         {
-            solver.Enabled = motion.IsIkEnabledForBone(solver.IkNode.Bone.BoneName, frame);
+            solver.Enabled = motion == null || motion.IsIkEnabledForBone(solver.IkNode.Bone.BoneName, frame);
         }
         Update(false);
         Update(true);
