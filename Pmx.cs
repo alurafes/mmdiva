@@ -27,8 +27,8 @@ public sealed class PmxIkLink
 {
     public int LinkBoneIndex { get; set; }
     public bool LinkHasLimit { get; set; }
-    public Vector3? Min { get; set; }
-    public Vector3? Max { get; set; }
+    public Vector3 Min { get; set; }
+    public Vector3 Max { get; set; }
 }
 
 public sealed class PmxBone
