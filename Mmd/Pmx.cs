@@ -5,6 +5,8 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 
+namespace Mmd;
+
 public sealed class PmxHeader
 {
     public float Version { get; set; }
@@ -65,7 +67,7 @@ public sealed class PmxBone
 
 public sealed class PmxModel
 {
-    public PmxHeader? Header { get; set; }
+    public PmxHeader Header { get; set; }
     public List<PmxBone> Bones { get; } = new();
     public Dictionary<string, int> BoneIndexByName { get; } = new Dictionary<string, int>();
 }

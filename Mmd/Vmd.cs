@@ -6,6 +6,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
+namespace Mmd;
+
 public sealed class VmdBoneFrame
 {
     public int Frame { get; set; }
@@ -52,7 +54,7 @@ public sealed class VmdIkFrame
 
 public sealed class VmdMotion
 {
-    public string? ModelName { get; set; }
+    public string ModelName { get; set; }
 
     public Dictionary<string, List<VmdBoneFrame>> BoneFrames { get; } = new();
     public Dictionary<string, List<VmdMorphFrame>> MorphFrames { get; } = new();
@@ -88,7 +90,7 @@ public sealed class VmdMotion
         return (pos, rot);
     }
     
-    public (VmdCameraFrame frame0, VmdCameraFrame? frame1) SampleCamera(float frame)
+    public (VmdCameraFrame frame0, VmdCameraFrame frame1) SampleCamera(float frame)
     {
         if (frame <= CameraFrames[0].Frame) return (CameraFrames[0], null);
         if (frame >= CameraFrames[^1].Frame) return (CameraFrames[^1], null);

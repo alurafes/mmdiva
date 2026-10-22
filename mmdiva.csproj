@@ -4,11 +4,19 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CA1416</NoWarn>
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MikuMikuLibrary\**" />
+    <EmbeddedResource Remove="MikuMikuLibrary\**" />
+    <None Remove="MikuMikuLibrary\**" />
     <PackageReference Include="System.Drawing.Common" Version="10.0.13" />
+    <PackageReference Include="System.Resources.Extensions" Version="10.0.13" />
+    <ProjectReference Include=".\MikuMikuLibrary\MikuMikuLibrary\MikuMikuLibrary.csproj" />
   </ItemGroup>
 
 </Project>

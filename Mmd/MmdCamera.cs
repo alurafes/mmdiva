@@ -1,6 +1,8 @@
 using System.Net.Cache;
 using System.Numerics;
 
+namespace Mmd;
+
 public sealed class MmdCamera
 {
     public sealed class CameraState

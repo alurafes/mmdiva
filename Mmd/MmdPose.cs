@@ -1,12 +1,14 @@
 using System.Numerics;
 
+namespace Mmd;
+
 // basically a port of Saba (see readme references) (SHOUTOUT FOR BEING MIT!!! I DONT WANT TO FIGURE THIS OUT)
 public sealed class MmdPose
 {
     public sealed class Node
     {
         public required PmxBone Bone { get; set; }
-        public Node? Parent { get; set; }
+        public Node Parent { get; set; }
         public List<Node> Children { get; } = new();
         public Vector3 Offset { get; set; }
         public Vector3 AnimationTranslation { get; set; }
