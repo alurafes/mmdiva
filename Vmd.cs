@@ -35,6 +35,13 @@ public sealed class VmdCameraFrame
     public byte[] Interpolation { get; set; } = Array.Empty<byte>();
     public int Fov { get; set; }
     public bool Orthographic { get; set; }
+    public float Bezier(int channel, float x)
+    {
+        int c = channel * 4;
+        float x1 = Interpolation[c] / 127.0f, y1 = Interpolation[c + 2] / 127.0f;
+        float x2 = Interpolation[c + 1] / 127.0f, y2 = Interpolation[c + 3] / 127.0f;
+        return VmdMotion.EvalBezier(x1, y1, x2, y2, x);
+    }
 }
 
 public sealed class VmdIkFrame
@@ -80,7 +87,25 @@ public sealed class VmdMotion
         var rot = Quaternion.Slerp(f0.Rotation, f1.Rotation, f1.Bezier(3, t));
         return (pos, rot);
     }
+    
+    public (VmdCameraFrame frame0, VmdCameraFrame? frame1) SampleCamera(float frame)
+    {
+        if (frame <= CameraFrames[0].Frame) return (CameraFrames[0], null);
+        if (frame >= CameraFrames[^1].Frame) return (CameraFrames[^1], null);
 
+        int low = 0, high = CameraFrames.Count - 1;
+        
+        // mmd animations are 30 fps, so for sampling at high fps reasons frames are floats. searching two frames nearby
+        while (high - low > 1)
+        {
+            int mid = (low + high) / 2;
+            if (CameraFrames[mid].Frame <= frame) low = mid; else high = mid;
+        }
+        var f0 = CameraFrames[low];
+        var f1 = CameraFrames[high];
+
+        return (f0, f1);
+    }
     public bool IsIkEnabledForBone(string ikBoneName, float frame)
     {
         bool enabled = true;
