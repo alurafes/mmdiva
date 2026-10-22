@@ -12,7 +12,11 @@ mmdPose.Evaluate(motion, 1000f);
 
 
 MegamixDivaFiles megamixDivaFiles = new MegamixDivaFiles("F:\\SteamLibrary\\steamapps\\common\\Hatsune Miku Project DIVA Mega Mix Plus");
+
 RobSkeleton skeleton = new RobSkeleton(megamixDivaFiles);
 RobPose divaPose = new RobPose(skeleton);
+var restPose = RobRestPoseLoader.Load(megamixDivaFiles);
+divaPose.Apply(restPose);
 
-Console.ReadLine();
+MMDiva.Debug.StickRenderer.Render(mmdPose.StickRendererSegments(0.06f), "MMD.png", 2.2f, 300);
+MMDiva.Debug.StickRenderer.Render(divaPose.StickRendererSegments(), "DIVA.png", 2.2f, 300);

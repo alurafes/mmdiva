@@ -1,5 +1,7 @@
 using System.Numerics;
+using MikuMikuLibrary.Archives;
 using MikuMikuLibrary.Bones;
+using MikuMikuLibrary.Objects;
 
 namespace Diva;
 
@@ -154,5 +156,108 @@ public sealed class RobPose
         SetNode(block, 2, matrix);
         matrix = Matrix4x4.CreateTranslation(len1, 0, 0) * matrix;
         SetNode(block, 3, matrix);
+    }
+
+    private const float H = MathF.PI / 2;
+    private const float F = MathF.PI;
+    public static readonly Dictionary<string, Vector3> ConstantRotations = new()
+    {
+        ["n_hara"] = new(0, H, 0),
+        ["n_mune_b"] = new(0, -H, -H),
+        ["n_kao"] = new(H, 0, -F),
+        ["face_root"] = new(H, 0, H),
+        ["n_waki_l"] = new(H, 0, H),
+        ["n_waki_r"] = new(H, 0, H),
+        ["c_kata_l"] = new(-H, -H, -H),
+        ["c_kata_r"] = new(-H, H, H),
+    };
+
+    public void Apply(Dictionary<string, Matrix4x4> pose)
+    {
+        Array.Clear(Values);
+        for (int i = 0; i < Skeleton.Blocks.Count; i++)
+        {
+            var block = Skeleton.Blocks[i];
+            ref var value = ref Values[i];
+
+            if (ConstantRotations.TryGetValue(block.Name, out var rotation)) value.Rotation = rotation;
+            switch (block.BoneType)
+            {
+                case BoneType.PositionRotation:
+                    value.Translation = pose["kl_kosi_etc_wj"].Translation;
+                    break;
+                case BoneType.Position:
+                    value.Translation = block.ChainPos;
+                    break;
+            }
+
+            if (block.IsIk)
+            {
+                var node0 = Matrix4x4.CreateTranslation(block.ChainPos) * InheritMatrix(block);
+                Vector3 dir = block.Name switch
+                {
+                    "cl_mune" => Vector3.UnitY,
+                    "cl_kao" => Vector3.UnitZ,
+                    _ => -Vector3.UnitY,
+                };
+                string upper = Skeleton.MotionBoneNames[block.FirstNode + 1];
+                if (block.BoneType != BoneType.HeadIKRotation && pose.TryGetValue(upper, out var bw)) dir = Vector3.Normalize(new Vector3(bw.M11, bw.M12, bw.M13));
+                float reach = block.BoneType == BoneType.HeadIKRotation ? 0.5f : (block.Len0 + block.Len1) * 0.9999f;
+                value.Target = node0.Translation + dir * reach;
+            }
+
+            EvaluateBlock(i);
+        }
+    }
+}
+
+public static class RobRestPoseLoader
+{
+    private const string MIKU_REST_POSE = "mikitm001";
+    public static Dictionary<string, Matrix4x4> Load(DivaFiles diva)
+    {
+        Dictionary<string, Matrix4x4> pose = new(StringComparer.OrdinalIgnoreCase);
+        string path = diva.ResolveFile($"rom/objset/{MIKU_REST_POSE}.farc");
+        if (path == null || !File.Exists(path)) return pose;
+
+        using var farc = MikuMikuLibrary.IO.BinaryFile.Load<FarcArchive>(path);
+        string entry = farc.FileNames.FirstOrDefault(x => x.EndsWith("_obj.bin"));
+        if (entry == null) return pose;
+
+        using var stream = farc.Open(entry, EntryStreamMode.MemoryStream);
+        var set = new ObjectSet();
+        set.Load(stream);
+
+        foreach (var obj in set.Objects)
+        {
+            if (obj.Skin == null) continue;
+            foreach (var bone in obj.Skin.Bones)
+            {
+                if (!pose.ContainsKey(bone.Name) && Matrix4x4.Invert(bone.InverseBindPoseMatrix, out var world))
+                {
+                    pose[bone.Name] = world;
+                }
+            }
+        }
+
+        return pose;
+    }
+}
+
+public static class RobPoseDebug
+{
+    public static List<MMDiva.Debug.Segment> StickRendererSegments(this RobPose pose)
+    {
+        var segments = new List<MMDiva.Debug.Segment>();
+
+        for (int n = 0; n < pose.Skeleton.MotionBoneNames.Count; n++)
+        {
+            int p = pose.Skeleton.NodeParents[n];
+            if (p < 0) continue;
+            string name = pose.Skeleton.MotionBoneNames[n];
+            segments.Add(new MMDiva.Debug.Segment(pose.Nodes[p].Translation, pose.Nodes[n].Translation, MMDiva.Debug.StickRenderer.SideColor(name)));
+        }
+
+        return segments;
     }
 }

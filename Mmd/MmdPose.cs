@@ -382,3 +382,20 @@ public sealed class MmdPose
         return r;
     }
 }
+
+public static class MmdPoseDebug
+{
+    public static List<MMDiva.Debug.Segment> StickRendererSegments(this MmdPose pose, float scale)
+    {
+        Vector3 Convert(Vector3 v) => new Vector3(v.X, v.Y, -v.Z) * scale;
+        var segments = new List<MMDiva.Debug.Segment>();
+
+        foreach (var bone in pose.Model.Bones)
+        {
+            if (bone.ParentBoneIndex < 0) continue;
+            segments.Add(new MMDiva.Debug.Segment(Convert(pose.GlobalPosition(bone.ParentBoneIndex)), Convert(pose.GlobalPosition(bone.Index)), MMDiva.Debug.StickRenderer.SideColor(bone.BoneName)));
+        }
+
+        return segments;
+    }
+}
