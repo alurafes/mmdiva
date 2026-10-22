@@ -117,7 +117,7 @@ public sealed class Retargeter
     private void DetermineRestTarget()
     {
         var missingBones = new List<string>();
-        foreach (var nodeMapping in BoneMap.Create())
+        foreach (var nodeMapping in BoneMap.Create(RetargetOptions.Fingers))
         {
             int node = RobPose.Skeleton.MotionBoneIndex(nodeMapping.DivaNode);
             if (node < 0) continue;
@@ -355,7 +355,7 @@ public sealed class Retargeter
     public record NodeMapping(string DivaNode, string[] MmdBones, string DivaTip = null, string[] MmdTips = null);
     public static class BoneMap
     {
-        public static List<NodeMapping> Create()
+        public static List<NodeMapping> Create(bool fingers)
         {
             var list = new List<NodeMapping>
             {
@@ -379,6 +379,7 @@ public sealed class Retargeter
                 list.Add(new($"kl_asi_{s}_wj_co", [$"{j}足首D", $"{j}足首"], $"kl_toe_{s}_wj", [$"{j}足先EX", $"{j}つま先"]));
                 list.Add(new($"kl_toe_{s}_wj", [$"{j}足先EX"]));
 
+                if (!fingers) continue;
                 foreach (var (d, m) in new[] { ("hito", "人指"), ("naka", "中指"), ("kusu", "薬指"), ("ko", "小指") })
                 {
                     list.Add(new($"nl_{d}_{s}_wj", [$"{j}{m}１"], $"nl_{d}_b_{s}_wj", [$"{j}{m}２"]));
