@@ -319,6 +319,12 @@ public static class VmdReader
             
         }
 
+        foreach (var l in motion.BoneFrames.Values) l.Sort((a, b) => a.Frame.CompareTo(b.Frame));
+        foreach (var l in motion.MorphFrames.Values) l.Sort((a, b) => a.Frame.CompareTo(b.Frame));
+        
+        motion.CameraFrames.Sort((a, b) => a.Frame.CompareTo(b.Frame));
+        motion.IkFrames.Sort((a, b) => a.Frame.CompareTo(b.Frame));
+
         return motion;
     }
 }

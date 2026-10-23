@@ -108,6 +108,8 @@ public sealed class MmdPose
         CreateIkSolvers();
 
         sortedNodes = nodes.OrderBy(node => node.Bone.AfterPhysics ? 1 : 0).ThenBy(node => node.Bone.Layer).ThenBy(node => node.Bone.Index).ToArray();
+
+        Evaluate(null, 0); // setting to rest pose by default
     }
 
     public void Evaluate(VmdMotion motion, float frame)
@@ -130,7 +132,7 @@ public sealed class MmdPose
     private void Update(bool afterPhysics)
     {
         foreach (var node in sortedNodes) if (node.Bone.AfterPhysics == afterPhysics) UpdateLocal(node);
-        foreach (var node in sortedNodes) if (node.Parent != null) UpdateGlobal(node);
+        foreach (var node in sortedNodes) if (node.Parent == null) UpdateGlobal(node);
 
         foreach (var node in sortedNodes)
         {
@@ -147,7 +149,7 @@ public sealed class MmdPose
             }
         }
 
-        foreach (var node in sortedNodes) if (node.Parent != null) UpdateGlobal(node);
+        foreach (var node in sortedNodes) if (node.Parent == null) UpdateGlobal(node);
     }
 
     private static void UpdateLocal(Node node)
@@ -382,7 +384,7 @@ public sealed class MmdPose
         if (r < 0) r += 2 * MathF.PI;
         return r;
     }
-}
+    }
 
 public static class MmdPoseDebug
 {

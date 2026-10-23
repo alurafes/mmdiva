@@ -165,15 +165,14 @@ public sealed class Retargeter
         mmdAnkleL = FindFirstBone("左足首");
         mmdAnkleR = FindFirstBone("右足首");
 
+        if (mmdRootBone < 0 || mmdAnkleL < 0 || mmdAnkleR < 0) throw new InvalidDataException("Can't find one of thesebones: 下半身, 左足首, 右足首");
+
         mmdRootRest = ToDiva(MmdPose.RestPosition(mmdRootBone));
         mmdAnkleLRest = ToDiva(MmdPose.RestPosition(mmdAnkleL));
         mmdAnkleRRest = ToDiva(MmdPose.RestPosition(mmdAnkleR));
 
-        if (mmdRootBone < 0 || mmdAnkleL < 0 || mmdAnkleR < 0) throw new InvalidDataException("Can't find one of thesebones: 下半身, 左足首, 右足首");
-
         DetermineScale();
         DetermineRestTarget();
-        
     }
 
     // having a temp variable like this works because blocks are sequential (left pole (tl_up_kata_l) -> left arm (c_kata_l) -> left hand)
@@ -262,7 +261,7 @@ public sealed class Retargeter
         MmdPose.Evaluate(motion, mmdFrame);
         var robValues = RobPose.Values;
 
-        Array.Copy(RobPose.Values, restValues, RobPose.Values.Length);
+        Array.Copy(restValues, RobPose.Values, restValues.Length);
         var rootPos = restNodePos[0] + Scale * (ToDiva(MmdPose.GlobalPosition(mmdRootBone)) - mmdRootRest) + RetargetOptions.Offset;
 
         for (int i = 0; i < RobPose.Skeleton.Blocks.Count; i++)

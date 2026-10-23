@@ -14,19 +14,22 @@ public sealed class RobPose
         public Vector3 Translation;
         public Vector3 Target;
     }
-    public RobSkeleton Skeleton { get; }
-    public BlockValue[] Values { get; }
-    public Matrix4x4[] Nodes { get; }
-    public Matrix4x4[] Matrices { get; }
+    public RobSkeleton Skeleton { get; private set; }
+    public BlockValue[] Values { get; private set; }
+    public Matrix4x4[] Nodes { get; private set; }
+    public Matrix4x4[] Matrices { get; private set; }
 
-    public RobPose(RobSkeleton skeleton)
+    public RobPose(DivaFiles diva)
     {
-        Skeleton = skeleton;
-        Values = new BlockValue[skeleton.Blocks.Count];
-        Nodes = new Matrix4x4[skeleton.MotionBoneNames.Count];
-        Matrices = new Matrix4x4[skeleton.MatrixCount];
+        Skeleton = new RobSkeleton(diva);
+        Values = new BlockValue[Skeleton.Blocks.Count];
+        Nodes = new Matrix4x4[Skeleton.MotionBoneNames.Count];
+        Matrices = new Matrix4x4[Skeleton.MatrixCount];
         for (int i = 0; i < Nodes.Length; i++) Nodes[i] = Matrix4x4.Identity;
         for (int i = 0; i < Matrices.Length; i++) Matrices[i] = Matrix4x4.Identity;
+
+        var restPose = RobRestPoseLoader.Load(diva); // setting to rest pose by default
+        Apply(restPose);
     }
 
     public Matrix4x4 InheritMatrix(RobSkeleton.RobBlock b) => b.HasParent ? Matrices[b.Parent] : Matrix4x4.Identity;

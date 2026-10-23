@@ -21,6 +21,7 @@ public sealed class RobSkeleton
         public int[] MatrixOfNode;
         public float Len0, Len1;
         public bool IsIk => BoneType is BoneType.ArmIKRotation or BoneType.LegIKRotation or BoneType.HeadIKRotation;
+        public int KeySetCount => BoneType >= BoneType.PositionRotation ? 6 : 3;
     }
 
     public List<RobBlock> Blocks { get; } = new();
@@ -33,6 +34,7 @@ public sealed class RobSkeleton
     private readonly Dictionary<string, int> blockByName = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, int> motionBoneByName = new(StringComparer.OrdinalIgnoreCase);
     public RobBlock BlockByName(string name) => blockByName.TryGetValue(name, out int i) ? Blocks[i] : null;
+    public int BlockIndex(string name) => blockByName.TryGetValue(name, out int i) ? i : -1;
     public int MotionBoneIndex(string name) => motionBoneByName.TryGetValue(name, out int i) ? i : -1;
 
     private Skeleton LoadSkeleton(DivaFiles diva)
@@ -45,7 +47,7 @@ public sealed class RobSkeleton
 
     private void ParseSkeleton(Skeleton skeleton)
     {
-        HeelHeight = skeleton.HeelHeight;
+        HeelHeight = BitConverter.UInt32BitsToSingle(skeleton.HeelHeight);
         MotionBoneNames.AddRange(skeleton.MotionBoneNames);
         NodeParents = skeleton.ParentIndices.ToArray();
 
