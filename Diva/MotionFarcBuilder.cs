@@ -29,7 +29,7 @@ public sealed class MotionFarcBuilder
         var outputFile = Path.Combine(outputDirectory, $"mot_{finalSetName}.farc");
 
         using var farc = new FarcArchive { IsCompressed = true, Alignment = 16 };
-        farc.Add($"mot_${finalSetName}.bin", stream, true, ConflictPolicy.Replace);
+        farc.Add($"mot_{finalSetName}.bin", stream, true, ConflictPolicy.Replace);
         farc.Save(outputFile);
 
         return outputFile.ToString();

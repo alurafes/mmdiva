@@ -123,7 +123,7 @@ public sealed class MotionBuilder
         }
 
         static Vector3 Nearest(Vector3 v, Vector3 prev) => new(Wrap(v.X, prev.X), Wrap(v.Y, prev.Y), Wrap(v.Z, prev.Z));
-        static float Wrap(float value, float previousValue) => value + 2 * MathF.PI * MathF.Round((previousValue - value) / 2 * MathF.PI);
+        static float Wrap(float value, float previousValue) => value + 2 * MathF.PI * MathF.Round((previousValue - value) / (2 * MathF.PI));
     }
 
     // no need to store ALL key frames for all motions. Especially if mmd animation doesn't animate fingers. Basically this is a greedy conversion from dense to sparse keyframes by sampling the interpolation curve the game uses
