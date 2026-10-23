@@ -97,13 +97,13 @@ public sealed class Retargeter
         m.Translation = Vector3.Zero;
         return m;
     }
-    static Vector3 LocalEuler(in Matrix4x4 desiredRot, in Matrix4x4 parent)
+    private static Vector3 LocalEuler(in Matrix4x4 desiredRot, in Matrix4x4 parent)
     {
         var p = RotOnly(parent);
         var local = desiredRot * Matrix4x4.Transpose(p);
         return RobPose.GetRotZyx(local);
     }
-    static (Vector3 yaw, Vector3 tilt) SplitYaw(in Matrix4x4 q)
+    private static (Vector3 yaw, Vector3 tilt) SplitYaw(in Matrix4x4 q)
     {
         float b = MathF.Atan2(-q.M13, q.M11);
         var rest = q * Matrix4x4.Transpose(Matrix4x4.CreateRotationY(b));
@@ -111,7 +111,6 @@ public sealed class Retargeter
         tilt.Y = 0;
         return (new Vector3(0, b, 0), tilt);
     }
-
 
     // calculates aa rotation that turns a diva bone's rest rotation into the mmd bone's
     private void DetermineRestTarget()

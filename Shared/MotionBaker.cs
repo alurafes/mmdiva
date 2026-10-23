@@ -3,10 +3,10 @@ namespace MMDiva;
 using Diva;
 using Mmd;
 
-public sealed class Baker
+public sealed class MotionBaker
 {
     public Retargeter Retargeter { get; private set; }
-    public Baker(Retargeter retargeter)
+    public MotionBaker(Retargeter retargeter)
     {
         Retargeter = retargeter;
     }

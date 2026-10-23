@@ -17,8 +17,6 @@ public sealed class MotionFarcBuilder
 
     public string CreateFarcFile(MotionSet templateSet, string outputDirectory)
     {
-        if (!Directory.Exists(outputDirectory)) throw new DirectoryNotFoundException($"{outputDirectory} doesn't exist");
-
         templateSet.Motions[0] = Motion;
 
         using var stream = new MemoryStream();
@@ -26,7 +24,8 @@ public sealed class MotionFarcBuilder
         stream.Position = 0;
 
         var finalSetName = SetName.ToUpperInvariant();
-        var outputFile = Path.Combine(outputDirectory, $"mot_{finalSetName}.farc");
+        var outputFile = Path.Combine(outputDirectory, "rom", "rob", $"mot_{finalSetName}.farc");
+        Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
 
         using var farc = new FarcArchive { IsCompressed = true, Alignment = 16 };
         farc.Add($"mot_{finalSetName}.bin", stream, true, ConflictPolicy.Replace);

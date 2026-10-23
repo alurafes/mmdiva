@@ -1,10 +1,12 @@
 using System.Net.Cache;
 using System.Numerics;
+using MikuMikuLibrary.IO.Common;
 
 namespace Mmd;
 
 public sealed class MmdCamera
 {
+    public VmdMotion Motion { get; private set; }
     public sealed class CameraState
     {
         public Vector3 Eye { get; set; } = Vector3.Zero;
@@ -15,9 +17,15 @@ public sealed class MmdCamera
 
     public CameraState State { get; private set; } = new();
 
-    public void Evaluate(VmdMotion motion, float frame)
+    public MmdCamera(VmdMotion cameraMotion)
     {
-        var (f0, f1) = motion.SampleCamera(frame);
+        if (cameraMotion.CameraFrames.Count == 0) throw new ArgumentException("camera vmd has no frames");
+        Motion = cameraMotion;
+    }
+
+    public void Evaluate(float frame)
+    {
+        var (f0, f1) = Motion.SampleCamera(frame);
 
         Vector3 interest = f0.InterestPoint, rot = f0.Rotation;
         float dist = f0.Distance, fov = f0.Fov;
@@ -46,6 +54,16 @@ public sealed class MmdCamera
         State.Eye = eye;
         State.Up = Vector3.TransformNormal(Vector3.UnitY, rotation);
         State.FovRad = fov * MathF.PI / 180;
+    }
+
+    // kinda jank but it will do
+    public bool HasCutBetweenFrames(float from, float to)
+    {
+        for (int i = 1; i < Motion.CameraFrames.Count; i++)
+        {
+            if (Motion.CameraFrames[i].Frame - Motion.CameraFrames[i - 1].Frame <= 1 && Motion.CameraFrames[i].Frame > from && Motion.CameraFrames[i].Frame <= to) return true;
+        }
+        return false;
     }
 
     static float Lerp(float a, float b, float t) => a + (b - a) * t;
