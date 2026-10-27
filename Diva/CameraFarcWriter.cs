@@ -4,12 +4,12 @@ using MikuMikuLibrary.Motions;
 
 namespace Diva;
 
-public sealed class CameraFarcBuilder
+public sealed class CameraFarcWriter
 {
     public string SetName { get; private set; }
     public string CameraA3da { get; private set; }
     private DivaFiles diva;
-    public CameraFarcBuilder(string setName, string cameraA3da, DivaFiles diva)
+    public CameraFarcWriter(string setName, string cameraA3da, DivaFiles diva)
     {
         SetName = setName;
         CameraA3da = cameraA3da;

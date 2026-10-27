@@ -3,12 +3,12 @@ using MikuMikuLibrary.Motions;
 
 namespace Diva;
 
-public sealed class MotionFarcBuilder
+public sealed class MotionFarcWriter
 {
     public string SetName { get; private set; }
     public Motion Motion { get; private set; }
     private DivaFiles diva;
-    public MotionFarcBuilder(Motion motion, string setName, DivaFiles diva)
+    public MotionFarcWriter(Motion motion, string setName, DivaFiles diva)
     {
         SetName = setName;
         Motion = motion;

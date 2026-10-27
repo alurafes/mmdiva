@@ -18,6 +18,8 @@ public static class Auth3d
         return value.ToString("0.#######", CultureInfo.InvariantCulture);
     }
 
+    // note for myself: i gotta get more consistent with my code, here i pass frames as a parameter but in other build classes i have it in my constructor
+    // todo make it more consistent 
     public static string BuildA3daCamera(string pv, IReadOnlyList<CameraFrame> frames, bool[] cameraCuts)
     {
         var lines = new List<string>();

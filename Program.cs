@@ -1,10 +1,13 @@
 ﻿using Mmd;
 using Diva;
 using MMDiva;
+using System.Text.RegularExpressions;
 
 var options = Options.Parse(args);
 
 var pv = options.Require("pv").ToUpperInvariant();
+if (!Regex.IsMatch(pv, @"^[A-Za-z]{2}\d{3}$")) throw new ArgumentException("invalid PV format (should be PVxxx)");
+
 var outputPath = options.Get("output", "./");
 
 VmdMotion danceMotion = VmdReader.Read(options.Require("dance-vmd"));
@@ -24,12 +27,23 @@ var danceFrames = baker.Bake(danceMotion);
 var motionBuilder = new MotionBuilder(robPose.Skeleton, new MotionBuilder.Options(), megamixDivaFiles);
 var builtMotion = motionBuilder.Build(danceFrames);
 
-var motionFarcBuilder = new MotionFarcBuilder(builtMotion, pv, megamixDivaFiles);
-motionFarcBuilder.CreateFarcFile(motionBuilder.Set, outputPath);
+var motionFarcWriter = new MotionFarcWriter(builtMotion, pv, megamixDivaFiles);
+motionFarcWriter.CreateFarcFile(motionBuilder.Set, outputPath);
 
 CameraBaker cameraBaker = new CameraBaker(retargeter);
 var (cameraFrames, cameraCuts) = cameraBaker.Bake(cameraMotion);
 var cameraA3da = Auth3d.BuildA3daCamera(pv, cameraFrames, cameraCuts);
 
-var cameraFarcBuilder = new CameraFarcBuilder(pv, cameraA3da, megamixDivaFiles);
-cameraFarcBuilder.CreateFarcFile(outputPath);
+var cameraFarcWriter = new CameraFarcWriter(pv, cameraA3da, megamixDivaFiles);
+cameraFarcWriter.CreateFarcFile(outputPath);
+
+var length = double.Parse(options.Require("length-seconds"), System.Globalization.CultureInfo.InvariantCulture);
+var bpm = int.Parse(options.Get("bpm", "120"), System.Globalization.CultureInfo.InvariantCulture);
+var dsc = new DscBuilder(length, bpm).BuildEmptyChart();
+
+var dscWriter = new DscWriter(pv, dsc);
+dscWriter.CreateDscFile(outputPath);
+
+var dbUid = int.Parse(options.Require("db-uid"), System.Globalization.CultureInfo.InvariantCulture);
+var cameraDbWriter = new CameraDbWriter(pv, dbUid, cameraFrames.Count);
+cameraDbWriter.CreateDbFile(outputPath);
