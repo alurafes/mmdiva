@@ -31,8 +31,6 @@ public static class Auth3d
 
         void Curve(string key, float[] values, float tolerance, bool unwrap = false)
         {
-            // same bullshit like in the motion set. compressing all frames if needed
-            var keys = CompressFrames(values, cameraCuts, tolerance);
             if (unwrap)
             {
                 for (int i = 1; i < values.Length; i++)
@@ -40,6 +38,8 @@ public static class Auth3d
                     values[i] -= 2 * MathF.PI * MathF.Round((values[i] - values[i - 1]) / (2 * MathF.PI)); // UnwrapEuler.Wrap
                 }
             }
+            // same bullshit like in the motion set. compressing all frames if needed
+            var keys = CompressFrames(values, cameraCuts, tolerance);
             if (keys.Count == 1)
             {
                 Static(key, keys[0].value);

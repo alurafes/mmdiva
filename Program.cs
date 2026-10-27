@@ -27,7 +27,7 @@ var builtMotion = motionBuilder.Build(danceFrames);
 var motionFarcBuilder = new MotionFarcBuilder(builtMotion, pv, megamixDivaFiles);
 motionFarcBuilder.CreateFarcFile(motionBuilder.Set, outputPath);
 
-CameraBaker cameraBaker = new CameraBaker();
+CameraBaker cameraBaker = new CameraBaker(retargeter);
 var (cameraFrames, cameraCuts) = cameraBaker.Bake(cameraMotion);
 var cameraA3da = Auth3d.BuildA3daCamera(pv, cameraFrames, cameraCuts);
 

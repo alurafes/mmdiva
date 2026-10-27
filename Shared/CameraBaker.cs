@@ -6,9 +6,10 @@ namespace MMDiva;
 
 public sealed class CameraBaker
 {
-    public CameraBaker()
+    public Retargeter Retargeter { get; private set; }
+    public CameraBaker(Retargeter retargeter)
     {
-        
+        Retargeter = retargeter;
     }
 
     private static float RollFor(Vector3 eye, Vector3 interest, Vector3 up)
@@ -38,13 +39,13 @@ public sealed class CameraBaker
             
             frames.Add(new Auth3d.CameraFrame
             {
-                Eye = mmdCamera.State.Eye,
-                Interest = mmdCamera.State.Interest,
+                Eye = mmdCamera.State.Eye * Retargeter.Scale,
+                Interest = mmdCamera.State.Interest * Retargeter.Scale,
                 Roll = RollFor(mmdCamera.State.Eye, mmdCamera.State.Interest, mmdCamera.State.Up),
                 FovX = 2 * MathF.Atan(MathF.Tan(mmdCamera.State.FovRad / 2) * (16f / 9f)),
             });
 
-            cutAfterFrame[frame] = mmdCamera.HasCutBetweenFrames(frame, frame + 1);
+            cutAfterFrame[frame] = mmdCamera.HasCutBetweenFrames(frame / 2.0f, (frame + 1) / 2.0f);
         }
 
         return (frames, cutAfterFrame);
