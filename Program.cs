@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 var options = Options.Parse(args);
 
 var pv = options.Require("pv").ToUpperInvariant();
-if (!Regex.IsMatch(pv, @"^[A-Za-z]{2}\d{3}$")) throw new ArgumentException("invalid PV format (should be PVxxx)");
+if (!Regex.IsMatch(pv, @"^[A-Za-z]{2}\d+$")) throw new ArgumentException("invalid PV format (should be PVxxxx)");
 
 var outputPath = options.Get("output", "./");
 
@@ -44,6 +44,11 @@ var dsc = new DscBuilder(length, bpm).BuildEmptyChart();
 var dscWriter = new DscWriter(pv, dsc);
 dscWriter.CreateDscFile(outputPath);
 
-var dbUid = int.Parse(options.Require("db-uid"), System.Globalization.CultureInfo.InvariantCulture);
-var cameraDbWriter = new CameraDbWriter(pv, dbUid, cameraFrames.Count);
+var cameraDbUid = int.Parse(options.Require("camera-db-uid"), System.Globalization.CultureInfo.InvariantCulture);
+var cameraDbWriter = new CameraDbWriter(pv, cameraDbUid, cameraFrames.Count);
 cameraDbWriter.CreateDbFile(outputPath);
+
+var motionSetId = uint.Parse(options.Require("motion-set-id"), System.Globalization.CultureInfo.InvariantCulture);
+var motionDbId = uint.Parse(options.Require("motion-db-id"), System.Globalization.CultureInfo.InvariantCulture);
+var motionDbWriter = new MotionDbWriter(motionBuilder, pv, motionSetId, motionDbId);
+motionDbWriter.CreateDbFile(outputPath);

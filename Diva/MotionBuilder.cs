@@ -19,6 +19,7 @@ public sealed class MotionBuilder
     public RobSkeleton Skeleton { get; private set; }
     public MotionSet Set { get; private set; }
     public Motion BaseMotion { get; private set; }
+    public MotionDatabase BaseMotionDatabase { get; private set; }
     private MotionTemplate motionTemplate;
     private DivaFiles diva;
 
@@ -29,8 +30,8 @@ public sealed class MotionBuilder
         using var motDbFarc = BinaryFile.Load<FarcArchive>(motDbPath);
         var motDbEntry = motDbFarc.FileNames.First();
         using var motDbStream = motDbFarc.Open(motDbEntry, EntryStreamMode.MemoryStream);
-        var motDb = BinaryFile.Load<MotionDatabase>(motDbStream);
-        var setInfo = motDb.GetMotionSetInfo("PV001");
+        BaseMotionDatabase = BinaryFile.Load<MotionDatabase>(motDbStream);
+        var setInfo = BaseMotionDatabase.GetMotionSetInfo("PV001");
 
         // the idea is to use an already working motion file as a template for my own motion file. The game requires things to be in correct order, I ain't figring it out 
         string baseMotPath = diva.ResolveFile("rom/rob/mot_pv001.farc");
@@ -41,7 +42,7 @@ public sealed class MotionBuilder
         Set.Load(baseMotStream);
 
         BaseMotion = Set.Motions[0];
-        motionTemplate = new MotionTemplate(BaseMotion, Skeleton, motDb.BoneNames);
+        motionTemplate = new MotionTemplate(BaseMotion, Skeleton, BaseMotionDatabase.BoneNames);
     }
 
     public MotionBuilder(RobSkeleton skeleton, Options builderOptions, DivaFiles diva)
@@ -54,6 +55,7 @@ public sealed class MotionBuilder
 
     public Motion Build(IReadOnlyList<RobPose.BlockValue[]> frames)
     {
+        Console.WriteLine($"{BaseMotion.Id} ${BaseMotion.Name}");
         var motion = new Motion
         {
             Id = BaseMotion.Id,
